@@ -1,0 +1,35 @@
+Package: stablespec
+Type: Package
+Title: Stable Specification Search in Structural Equation Models
+Version: 0.2.3
+Date: 2016-11-17
+Authors@R: c(
+    person("Ridho", "Rahmadi", , "r.rahmadi@cs.ru.nl", c("aut", "cre")),
+    person("Perry", "Groot", role = c("aut", "ths")),
+    person("Tom", "Heskes", role = c("aut", "ths"))
+    )
+Description: An exploratory and heuristic approach for specification search
+    in Structural Equation Modeling. The basic idea is to subsample the original
+    data and then search for optimal models on each subset. Optimality is defined
+    through two objectives: model fit and parsimony. As these objectives are
+    conflicting, we apply a multi-objective optimization methods, specifically
+    NSGA-II, to obtain optimal models for the whole range of model complexities.
+    From these optimal models, we consider only the relevant model specifications
+    (structures), i.e., those that are both stable (occur frequently) and
+    parsimonious and use those to infer a causal model.
+URL: https://github.com/rahmarid/stablespec
+BugReports: https://github.com/rahmarid/stablespec/issues
+Depends: R (>= 3.1.0)
+License: MIT + file LICENSE
+LazyData: TRUE
+Imports:
+    ggm,
+    matrixcalc,
+    sem,
+    nsga2R,
+    graph,
+    Rgraphviz,
+    methods,
+    polycor
+RoxygenNote: 5.0.1
+Suggests: testthat

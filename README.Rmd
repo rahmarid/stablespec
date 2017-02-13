@@ -1,0 +1,84 @@
+---
+output:
+  md_document:
+    variant: markdown_github
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, echo = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "README-"
+)
+```
+
+# stablespec
+
+stablespec is a package that provides functions to do causal analysis by exploratory and heuristically searching stable specifications 
+(model structures) of Structural Equation Models (SEMs). Our method which is called stable specification search and the main ideas
+as the following:
+
+* Subsample data (either cross-sectional or longitudinal), with half size without replacement.
+
+* For every data subset, we search optimal models for the whole range of 
+  model complexity. An optimal model is defined by two conflicting objectives:
+  fit the data well and parsimonious. In order to do that, we apply a multi-objective optimization, 
+  in particular we employ Non-dominated Sorting Genetic Algorithm II (NSGA-II) to get the Pareto optimal fronts.
+  
+* From these optimal models, we observe the relevant specifications, that is, model
+  structures that satisfy predetermined thresholds and thus representing our objectives; 
+  fit the data well and parsimonious (simple) model.
+  
+* Finally from these relevant specifications, we infer a causal model.
+
+You can install the latest version with
+
+    ```R
+    install.packages("stablespec")
+    ````
+
+An example on cross-sectional data about patients with ADHD:
+
+```{r}
+library(stablespec)
+
+the_data <- adhd
+numSubset <- 1
+num_iteration <- 5
+num_pop <- 10
+mut_rate <- 0.075
+cross_rate <- 0.85
+longi <- FALSE
+num_time <- 1
+the_seed <- NULL
+the_co <- "covariance"
+# assummed that nothing causing variable Gender
+cons_matrix <- matrix(c(2, 1, 3, 1, 4, 1, 5, 1, 6, 1), 5, 2, byrow=TRUE)
+th <- 0.1
+to_plot <- FALSE
+
+result_adhd <- stableSpec(theData=the_data, nSubset=numSubset,
+iteration=num_iteration,
+nPop=num_pop, mutRate=mut_rate, crossRate=cross_rate,
+longitudinal=longi, numTime=num_time, seed=the_seed,
+co=the_co, consMatrix=cons_matrix, threshold=th, toPlot=to_plot)
+```
+
+Note that above example only subsamples a subset, while in practice, it is suggested
+to have at least 25 subsets. This is to ensure that the specifications we get are
+stable. Having such 25 subsets consequently increases the running time. To our experience,
+running 25 subsets with 6 variables, with typical parameters e.g.,
+population size 100 and number of iteration 20, will take about 30-40 minutes, depending the specification of the computer. However, considering that we employ a multi-objective evolutionary algorithm, such run time is considerably acceptable.
+
+## Learning about stable specification search
+
+You can read about our method from the following articles:
+
+* [Causality on Cross-Sectional Data: Stable Specification Search in Constrained Structural Equation Modeling](http://www.sciencedirect.com/science/article/pii/S1568494616305130)
+* [Causality on Longitudinal Data: Stable Specification Search in Constrained Structural Equation Modeling](http://ceur-ws.org/Vol-1425/paper14.pdf)
+
+
+
+
