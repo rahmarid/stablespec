@@ -22,7 +22,7 @@ stablespec is an implementation of stable specification search for cross-section
 ## Illustration
 <img src="method.png" align="center" />
 
-## Installaion
+## Installation
 
 ```install.packages("stablespec")
    
