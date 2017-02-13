@@ -6,13 +6,7 @@ output:
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-```{r, echo = FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>",
-  fig.path = "README-"
-)
-```
+
 
 # stablespec
 
@@ -32,7 +26,8 @@ devtools::install_github("rahmarid/stablespec")
 ```
 ## Usage
 
-```{r example}
+
+```r
 library(stablespec)
 
 the_data <- crossdata6V
