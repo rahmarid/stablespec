@@ -120,13 +120,13 @@ optimalModels <- function(theData, nSubset, iteration, nPop,
         while (i <= length(ranking)) {
           rnkIndex[ranking[[i]]] <- i
           i <- i + 1
-        } 
+        }
 
         #to get the range of each objective
-        objRange <- apply(preR0[, 1:2], 2, max) - apply(preR0[, 1:2], 2, min) 
+        objRange <- apply(preR0[, 1:2], 2, max) - apply(preR0[, 1:2], 2, min)
 
         #to assign the crowded distance for each member in each front
-        assignedDist <- crowdingDistance(preR0, ranking, objRange, numVar) 
+        assignedDist <- crowdingDistance(preR0, ranking, objRange)
 
         #to sort the members in each front in R0 based on the crowded distance
         sortedDist <- sortBasedOnDist(ranking, assignedDist)
@@ -136,7 +136,7 @@ optimalModels <- function(theData, nSubset, iteration, nPop,
         R0 <- allR0[indexR0, ]
 
         #new P0
-        P0 <- R0[1:nPop, ] 
+        P0 <- R0[1:nPop, ]
 
         # if the length of the first front < nPop, take them all
         # or take them as many as nPop otherwise (if length is more than nPop)
@@ -146,7 +146,7 @@ optimalModels <- function(theData, nSubset, iteration, nPop,
         } else {
           lengthInd <- nPop
           takenInd <- sortedDist[[1]][1:nPop]
-        } 
+        }
 
         front1Fitness <- rbind(front1Fitness, preR0[takenInd, ])
 
