@@ -43,7 +43,7 @@ optimalModels <- function(theData, nSubset, iteration, nPop,
 
   # the main loop / outer loop -----------------------------------------
 
-  masterList = foreach(l = 1:nSubset, .inorder = FALSE) %dopar% {
+  masterList = foreach(l = 1:nSubset, .inorder = FALSE, .export=c(), .packages=c('stablespec')) %dopar% {
     #set seed
     set.seed(seed[l])
 

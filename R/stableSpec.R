@@ -107,11 +107,12 @@
 #' longitudinal=longi, numTime=num_time, seed=the_seed,
 #' co=the_co, consMatrix=cons_matrix, threshold=th,
 #' toPlot=to_plot, mixture = mix)
-#'   
-#' # Register a parallel backend on a unix-like machine
-#' library(doParallel)
+#' 
+#' # Using a parallel backend for computation
+#' # For details consult the actual backend you are using
+#' library(parallel)
 #' # Create cluster with desired number of cores
-#' cl <- makeCluster(detectCores() - 1, type = "FORK")
+#' cl <- makeCluster(detectCores())
 #' # Register cluster
 #' registerDoParallel(cl)
 #' # Then call stableSpec as normal 
