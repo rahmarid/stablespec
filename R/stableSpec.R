@@ -43,6 +43,7 @@
 #' \code{polychoric} and \code{polyserial} correlation in the SEM computation.
 #' Note that, the categorical variables should be represented as \code{factor}
 #' or \code{logical}.
+#' @param log an optional logfile to monitor the progress of the algorithm.
 #' @return a list of the following elements:
 #' \itemize{
 #' \item \code{listofFronts} is a \code{\link{list}} of optimal models for
@@ -325,7 +326,7 @@ stableSpec <- function(theData = NULL,
   if (!is.null(log)) {
     t <- try(writeLines(c(paste("Total number of subsets", nSubset)), log))
     if ("try-error" %in% class(t)) {
-      stop("Log file is either not writeable or an invalid path")
+      stop("Log file is either not writeable.")
     }
   }
 
