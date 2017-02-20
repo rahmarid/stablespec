@@ -188,7 +188,8 @@ stableSpec <- function(theData = NULL,
                        consMatrix = NULL,
                        threshold = NULL,
                        toPlot = NULL,
-                       mixture = NULL) {
+                       mixture = NULL,
+                       log = NULL) {
 
   # to check arguments
   if(!is.null(theData)) { # if data is supplied
@@ -320,10 +321,21 @@ stableSpec <- function(theData = NULL,
     seed <- sample(100:1000, nSubset)
   }
 
+  # Check the log file path
+  if (!is.null(log)) {
+    t <- try(writeLines(c(paste("Total number of subsets", nSubset)), log))
+    if ("try-error" %in% class(t)) {
+      stop("Log file is either not writeable or an invalid path")
+    }
+  }
+
+
+
   #get the optimal models from the whole range of model complexities
   optimal_models <- optimalModels(theData, nSubset, iteration, nPop,
                                   mutRate, crossRate, longitudinal,
-                                  numTime, seed, co, consMatrix, mixture)
+                                  numTime, seed, co, consMatrix, mixture,
+                                  log)
 
   #compute the stability of structures
   stabRes <- structureStab(optimal_models$listOfFronts,

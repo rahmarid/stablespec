@@ -1,6 +1,7 @@
 optimalModels <- function(theData, nSubset, iteration, nPop,
                           mutRate, crossRate, longitudinal,
-                          numTime, seed, co, consMatrix, mixture) {
+                          numTime, seed, co, consMatrix, mixture,
+                          log) {
 
   #masterList to store the pareto fronts
 
@@ -40,13 +41,15 @@ optimalModels <- function(theData, nSubset, iteration, nPop,
     constraint1 <- convertCons(consMatrix, numVar)
   }
 
-
   # the main loop / outer loop -----------------------------------------
-
-  masterList = foreach(l = 1:nSubset, .inorder = FALSE, .export=c(), .packages=c('stablespec')) %dopar% {
+  masterList <- foreach(l = 1:nSubset, .inorder = FALSE, .export = c(), .packages = c('stablespec')) %dopar% {
     #set seed
     set.seed(seed[l])
 
+    if (!is.null(log)) {
+      sink(log, append=TRUE)
+      cat(paste(Sys.time(), ": Starting subset ", l, "\n", sep = ''))
+    }
     #draw a subset from the data
     if (longitudinal) {
 
@@ -171,6 +174,11 @@ optimalModels <- function(theData, nSubset, iteration, nPop,
       firstFront1Merged <- cbind(firstFront1Model, firstFront1Fitness)
 
       uniqueFirstFront <- unique(firstFront1Merged)
+
+      if (!is.null(log)) {
+        sink(log, append=TRUE)
+        cat(paste(Sys.time(), ": Finished subset ", l, "\n", sep = ""))
+      }
 
       uniqueFirstFront
   }
