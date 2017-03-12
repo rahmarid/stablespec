@@ -1,11 +1,9 @@
 optimalModels <- function(theData, nSubset, iteration, nPop,
                           mutRate, crossRate, longitudinal,
-                          numTime, seed, co, consMatrix, mixture) {
+                          numTime, seed, co, consMatrix, mixture,
+                          log) {
 
   #masterList to store the pareto fronts
-  #allSubsets to store the subsets
-  masterList <- allSubsets <- list()
-
 
   if (longitudinal){
     #get the number of instances of one time slice
@@ -43,14 +41,15 @@ optimalModels <- function(theData, nSubset, iteration, nPop,
     constraint1 <- convertCons(consMatrix, numVar)
   }
 
-
   # the main loop / outer loop -----------------------------------------
-
-  for (l in 1:nSubset) {
-
+  masterList <- foreach(l = 1:nSubset, .inorder = FALSE, .export = c(), .packages = c('stablespec')) %dopar% {
     #set seed
     set.seed(seed[l])
 
+    if (!is.null(log)) {
+      sink(log, append=TRUE)
+      cat(paste(Sys.time(), ": Starting subset ", l, "\n", sep = ''))
+    }
     #draw a subset from the data
     if (longitudinal) {
 
@@ -59,10 +58,6 @@ optimalModels <- function(theData, nSubset, iteration, nPop,
     } else { #if cross-sectional data
       newData <- getDataCross(theData, sizeSubset)
     }
-
-    #store into the list
-    allSubsets[[l]] <- newData
-
 
     #make an initial population
     initialModels <- initialPopulation(numVar, stringSize,
@@ -76,120 +71,118 @@ optimalModels <- function(theData, nSubset, iteration, nPop,
     initialResult <- gatherFitness(newData, initialModels, sizeSubset,
                                    numVar, l, longitudinal, co, mixture)
 
-  # FIRST GENERATION----------------------------------------------------
+      # FIRST GENERATION----------------------------------------------------
 
-  # sorted first generation, here is P0
-  preP0 <- fastNonDominatedSort(initialResult)
+      # sorted first generation, here is P0
+      preP0 <- fastNonDominatedSort(initialResult)
 
-  #to get the matrix of indices from Front1..n
-  indexP0 <- convertFront(preP0)
-  P0 <- initialModels[indexP0, ]
+      #to get the matrix of indices from Front1..n
+      indexP0 <- convertFront(preP0)
+      P0 <- initialModels[indexP0, ]
+
+      # initial Selection
+      currentPop <- P0
+
+      # to get the first front's fitness
+      front1Fitness <- initialResult[preP0[[1]], ]
+
+      #to get the first front's models
+      front1Model <- initialModels[preP0[[1]], ]
 
 
-  # initial Selection
-  currentPop <- P0
+      # the loop of NSGA --------------------------------------------
+      for (j in 1:iteration) {
+        # Crossover
+        i <- 1
+        while (i < nPop) {
+          toss <- runif(1, 0, 1)
+          if (toss <= crossRate) {
+            #generate crossovered offspring, by taking two consecutive models
+            offsprings <- crossOver(currentPop[i, ],
+                                    currentPop[i+1, ], numVar, longitudinal)
+            currentPop[i, ] <- offsprings[[1]]
+            currentPop[i+1, ] <- offsprings[[2]]
+          }
+          #to take the next two consecutive models
+          i <- i + 2
+        }
 
-  # to get the first front's fitness
-  front1Fitness <- initialResult[preP0[[1]], ]
+        # MUTATION -----------------------------
+        for (i in 1:nPop) {
+          currentPop[i,] <- mutation(currentPop[i, ], mutRate,
+                                     numVar, constraint1, longitudinal)
+        }
 
-  #to get the first front's models
-  front1Model <- initialModels[preP0[[1]], ]
+        allR0 <- rbind(P0, currentPop)
+        preR0 <- gatherFitness(newData, allR0, sizeSubset, numVar,
+                               l, longitudinal, co, mixture)
 
+        ranking <- fastNonDominatedSort(preR0)
+        rnkIndex <- integer(nPop)
+        i <- 1
+        while (i <= length(ranking)) {
+          rnkIndex[ranking[[i]]] <- i
+          i <- i + 1
+        }
 
-  # the loop of NSGA --------------------------------------------
+        #to get the range of each objective
+        objRange <- apply(preR0[, 1:2], 2, max) - apply(preR0[, 1:2], 2, min)
 
-  for (j in 1:iteration) {
-    # Crossover
-    i <- 1
-    while (i < nPop) {
-      toss <- runif(1, 0, 1)
-      if (toss <= crossRate) {
-        #generate crossovered offspring, by taking two consecutive models
-        offsprings <- crossOver(currentPop[i, ],
-                                currentPop[i+1, ], numVar, longitudinal)
-        currentPop[i, ] <- offsprings[[1]]
-        currentPop[i+1, ] <- offsprings[[2]]
+        #to assign the crowded distance for each member in each front
+        assignedDist <- crowdingDistance(preR0, ranking, objRange)
+
+        #to sort the members in each front in R0 based on the crowded distance
+        sortedDist <- sortBasedOnDist(ranking, assignedDist)
+
+        #order and get R0
+        indexR0 <- convertFront(sortedDist)
+        R0 <- allR0[indexR0, ]
+
+        #new P0
+        P0 <- R0[1:nPop, ]
+
+        # if the length of the first front < nPop, take them all
+        # or take them as many as nPop otherwise (if length is more than nPop)
+        if (length(sortedDist[[1]]) < nPop) {
+          lengthInd <- length(sortedDist[[1]])
+          takenInd <- sortedDist[[1]]
+        } else {
+          lengthInd <- nPop
+          takenInd <- sortedDist[[1]][1:nPop]
+        }
+
+        front1Fitness <- rbind(front1Fitness, preR0[takenInd, ])
+
+        #to get the first front models
+        front1Model <- rbind(front1Model, allR0[takenInd, ])
+
+        # New currentPop
+        currentPop <- cbind(P0, rnkIndex[indexR0[1:nPop, ]],
+                            assignedDist[indexR0[1:nPop, ], ])
+        currentPop <- nsga2R::tournamentSelection(currentPop, nPop, 2)
+        currentPop <- currentPop[, 1:stringSize]
       }
-      #to take the next two consecutive models
-      i <- i + 2
-    }
 
-    # MUTATION -----------------------------
-    for (i in 1:nPop) {
-      currentPop[i,] <- mutation(currentPop[i, ], mutRate,
-                                 numVar, constraint1, longitudinal)
-    }
+      toFrontOneIndex <- fastNonDominatedSort(front1Fitness)
 
-    allR0 <- rbind(P0, currentPop)
-    preR0 <- gatherFitness(newData, allR0, sizeSubset, numVar,
-                           l, longitudinal, co, mixture)
+      #to get the model of 1st front of all FrontOne
+      firstFront1Model <- front1Model[toFrontOneIndex[[1]], ]
 
-    ranking <- fastNonDominatedSort(preR0)
-    rnkIndex <- integer(nPop)
-    i <- 1
-    while (i <= length(ranking)) {
-      rnkIndex[ranking[[i]]] <- i
-      i <- i + 1
-    }
+      #to get the fitness of 1st front of FrontOne
+      firstFront1Fitness <- front1Fitness[toFrontOneIndex[[1]], ]
 
+      firstFront1Merged <- cbind(firstFront1Model, firstFront1Fitness)
 
-    #to get the range of each objective
-    objRange <- apply(preR0[, 1:2], 2, max) - apply(preR0[, 1:2], 2, min)
+      uniqueFirstFront <- unique(firstFront1Merged)
 
+      if (!is.null(log)) {
+        sink(log, append=TRUE)
+        cat(paste(Sys.time(), ": Finished subset ", l, "\n", sep = ""))
+      }
 
-    #to assign the crowded distance for each member in each front
-    assignedDist <- crowdingDistance(preR0, ranking, objRange)
-
-
-    #to sort the members in each front in R0 based on the crowded distance
-    sortedDist <- sortBasedOnDist(ranking, assignedDist)
-
-    #order and get R0
-    indexR0 <- convertFront(sortedDist)
-    R0 <- allR0[indexR0, ]
-
-    #new P0
-    P0 <- R0[1:nPop, ]
-
-
-    # if the length of the first front < nPop, take them all
-    # or take them as many as nPop otherwise (if length is more than nPop)
-    if (length(sortedDist[[1]]) < nPop) {
-      lengthInd <- length(sortedDist[[1]])
-      takenInd <- sortedDist[[1]]
-    } else {
-      lengthInd <- nPop
-      takenInd <- sortedDist[[1]][1:nPop]
-    }
-
-
-    front1Fitness <- rbind(front1Fitness, preR0[takenInd, ])
-
-    #to get the first front models
-    front1Model <- rbind(front1Model, allR0[takenInd, ])
-
-    # New currentPop
-    currentPop <- cbind(P0, rnkIndex[indexR0[1:nPop, ]],
-                        assignedDist[indexR0[1:nPop, ], ])
-    currentPop <- nsga2R::tournamentSelection(currentPop, nPop, 2)
-    currentPop <- currentPop[, 1:stringSize]
+      uniqueFirstFront
   }
 
-  toFrontOneIndex <- fastNonDominatedSort(front1Fitness)
-
-  #to get the model of 1st front of all FrontOne
-  firstFront1Model <- front1Model[toFrontOneIndex[[1]], ]
-
-  #to get the fitness of 1st front of FrontOne
-  firstFront1Fitness <- front1Fitness[toFrontOneIndex[[1]], ]
-
-  firstFront1Merged <- cbind(firstFront1Model, firstFront1Fitness)
-
-  uniqueFirstFront <- unique(firstFront1Merged)
-
-  masterList[[l]] <- uniqueFirstFront
-  }
   return(list(listOfFronts=masterList, num_var=numVar,
               string_size=stringSize, cons_matrix = consMatrix))
 }
-
