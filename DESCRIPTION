@@ -34,6 +34,7 @@ Imports:
     polycor,
     foreach,
     parallel,
-    iterators
-RoxygenNote: 5.0.1
+    iterators,
+    doParallel
+RoxygenNote: 6.0.1
 Suggests: testthat
