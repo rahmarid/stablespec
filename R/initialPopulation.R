@@ -10,7 +10,7 @@ initialPopulation <- function(numVar, stringSize, longitudinal, consMatrix) {
   interString <- rep(0, numVar * numVar)
 
   # matrix of models
-  # also will be a frist model which all zero representing model with
+  # also will be a first model which all zero representing model with
   # no connection
   allString <- matrix(0, 1, stringSize)
 
@@ -33,23 +33,38 @@ initialPopulation <- function(numVar, stringSize, longitudinal, consMatrix) {
     }
 
     #take only numModels of them
-    the_index <- the_index[1:numModels, ]
+
+    #if there is a lot of constraints, number of available indices
+    #and hence the number of initial models could be less
+    # than the number of possible models according to n(n-1)/2
+    # if so, take all indices
+    if (numModels > nrow(the_index)) {
+      the_index <- the_index
+    } else {
+      #if not
+      the_index <- the_index[1:numModels, ]
+    }
+
 
     both <- TRUE
+    numModel_to_generate <- nrow(the_index)
 
   } else if (any(duplicated(rbind(upperMat, consMatrix)))) {
 
     #if any constraints belong to upper diagonal matrix
     the_index <- lowerMat
+    numModel_to_generate <- numModels
 
   } else {
 
     #if any constraints belong to upper lower matrix
     the_index <- upperMat
+    numModel_to_generate <- numModels
   }
 
   # for each complexity, generate a model
-  for (i in 1:numModels) {
+
+  for (i in 1:numModel_to_generate) {
     model <- matrix(0, numVar, numVar)
     for (j in 1:i) {
       model[the_index[j, 1], the_index[j, 2]] <- 1
