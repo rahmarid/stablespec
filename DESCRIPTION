@@ -33,7 +33,6 @@ Imports:
     methods,
     polycor,
     foreach,
-    parallel,
     iterators,
     doParallel
 RoxygenNote: 6.0.1

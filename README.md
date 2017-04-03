@@ -12,7 +12,7 @@ Illustration
 
 <img src="method.png" align="center" />
 
-Installaion
+Installation
 -----------
 
 ``` install.packages("stablespec")
