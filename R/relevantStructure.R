@@ -145,8 +145,8 @@ getMinBic <- function(listOfFronts, stringSize) {
     # to check whether there is nan values
     # this likely happens if nSubset is extremely small, e.g. 1.
     if (any(is.nan(allBic))) {
-      maxBic <- matOfFronts[which(matOfFronts[, stringSize + 2]
-                                  == maxCom), stringSize + 3]
+      maxBic <- max(matOfFronts[which(matOfFronts[, stringSize + 2]
+                                  == maxCom), stringSize + 3])
 
       # give nan values the maximum bic of allBic plus 10
       allBic[is.nan(allBic)] <- maxBic + 10

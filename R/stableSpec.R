@@ -8,6 +8,9 @@
 #' time slices \code{t_1} and \code{t_2}. The \code{i-th} subset of \code{n}
 #' data points contain the relations in time slices \code{t_i-1} and \code{t_i}.
 #' One can use function \code{\link{dataReshape}} to reshape longitudinal data.
+#' Uses the \code{foreach} package for parallel computation. You need to register
+#' a parallel backend before calling \code{stableSpec} if you want to parallize
+#' computation. For details see the \code{foreach} package.
 #' @param nSubset number of subsets to draw. In practice, it is suggested
 #' to have at least 25 subsets. The default is 10.
 #' @param iteration number of iterations/generations for NSGA-II.
@@ -40,6 +43,7 @@
 #' \code{polychoric} and \code{polyserial} correlation in the SEM computation.
 #' Note that, the categorical variables should be represented as \code{factor}
 #' or \code{logical}.
+#' @param log an optional logfile to monitor the progress of the algorithm.
 #' @return a list of the following elements:
 #' \itemize{
 #' \item \code{listofFronts} is a \code{\link{list}} of optimal models for
@@ -104,8 +108,25 @@
 #' longitudinal=longi, numTime=num_time, seed=the_seed,
 #' co=the_co, consMatrix=cons_matrix, threshold=th,
 #' toPlot=to_plot, mixture = mix)
+#' 
+#' # Using a parallel backend for computation
+#' # For details consult the actual backend you are using
+#' library(parallel)
+#' # Create cluster with desired number of cores
+#' cl <- makeCluster(detectCores())
+#' # Register cluster
+#' registerDoParallel(cl)
+#' # Then call stableSpec as normal 
+#' result.parallel <- stableSpec(theData=the_data, nSubset=numSubset,
+#' iteration=num_iteration,
+#' nPop=num_pop, mutRate=mut_rate, crossRate=cross_rate,
+#' longitudinal=longi, numTime=num_time, seed=the_seed,
+#' co=the_co, consMatrix=cons_matrix, threshold=th,
+#' toPlot=to_plot, mixture = mix)
+#'   
 #'
 #' @author Ridho Rahmadi \email{r.rahmadi@cs.ru.nl}, Perry Groot, Tom Heskes
+#' @contribution Christoph Stich
 #' @details This function performs exploratory search over
 #' recursive (acyclic) SEM models.
 #' Models are scored along two objectives: the model fit and
@@ -168,24 +189,10 @@ stableSpec <- function(theData = NULL,
                        consMatrix = NULL,
                        threshold = NULL,
                        toPlot = NULL,
-                       mixture = NULL) {
+                       mixture = NULL,
+                       log = NULL) {
 
   # to check arguments
-  # argument data
-  # if(!is.null(theData)) { # if data is supplied
-  # if (is.numeric(theData) && !(is.matrix(theData))) {
-  # stop("Data should be either a data frame or a matrix of numerical values.")
-  # } else if (!(is.numeric(theData)) && is.data.frame(theData)) {
-  # if (any(sapply(theData, is.numeric) == FALSE)) {
-  #   stop("Data should be either a data frame or a matrix of numerical values.")
-  # }
-  # } else if (!is.numeric(theData)) {
-  #  stop("Data should be either a data frame or a matrix of numerical values.")
-  # }
-  # } else { # if not supplied
-  # stop("Data cannot be missing")
-  # }
-
   if(!is.null(theData)) { # if data is supplied
     if (!is.matrix(theData) && !is.data.frame(theData)) {
       stop("Data should be either a data frame or a matrix of numeric, logical, or factor.")
@@ -315,33 +322,35 @@ stableSpec <- function(theData = NULL,
     seed <- sample(100:1000, nSubset)
   }
 
+  # Check the log file path
+  if (!is.null(log)) {
+    t <- try(writeLines(c(paste("Total number of subsets", nSubset)), log))
+    if ("try-error" %in% class(t)) {
+      stop("Log file is either not writeable.")
+    }
+  }
+
+
+
   #get the optimal models from the whole range of model complexities
   optimal_models <- optimalModels(theData, nSubset, iteration, nPop,
                                   mutRate, crossRate, longitudinal,
-                                  numTime, seed, co, consMatrix, mixture)
+                                  numTime, seed, co, consMatrix, mixture,
+                                  log)
 
+  #compute the stability of structures
+  stabRes <- structureStab(optimal_models$listOfFronts,
+                           optimal_models$string_size,
+                           optimal_models$num_var,
+                           longitudinal,
+                           optimal_models$cons_matrix) 
 
-  #doIt <- TRUE
-  #while(doIt) {
-    #print("Now the relevant specifications are computed....")
-
-    #compute the stability of structures
-    stabRes <- structureStab(optimal_models$listOfFronts,
-                             optimal_models$string_size,
-                             optimal_models$num_var,
-                             longitudinal,
-                             optimal_models$cons_matrix)
-
-
-    #relevant structures
-    rel_struct <-
+  #relevant structures
+  rel_struct <-
       relevantStructure(optimal_models$listOfFronts,
                         threshold, stabRes$causalStab,
                         stabRes$causalStab_l1, stabRes$edgeStab,
                         optimal_models$string_size, colnames(theData))
-
-    #doIt <- FALSE
-  #}
 
   #return output
   if (toPlot) {
@@ -364,6 +373,5 @@ stableSpec <- function(theData = NULL,
                 relEdge=rel_struct$relEdge,
                 graph=rel_struct$graph,
                 allSeed=seed))
-
   }
 }

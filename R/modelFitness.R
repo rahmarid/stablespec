@@ -83,3 +83,4 @@ getFitness <- function(dataSet, modelChar, sizeSubset,
   }
   return(c(chi, df, bic, index))
 }
+

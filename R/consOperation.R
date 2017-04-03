@@ -41,10 +41,19 @@ cons4Stab <- function(consMatrix, numVar, longitudinal) {
     #in longitudinal model
     #in case no constraint
     if (nrow(consMatrix) == 1 & all(consMatrix == 0)) {
+
       return(cons_inter)
+
+    } else if (nrow(consMatrix) == 1){
+
+      cons_intra <- matrix(c(consMatrix[, 2], consMatrix[, 1]),
+                           1, 2, byrow = TRUE) + numvar
+
     } else {
+
       cons_intra <- consMatrix[, c(2, 1)] + numVar
       return(rbind(cons_intra, cons_inter))
+
     }
 
   } else { #if cross-sectional
@@ -54,8 +63,17 @@ cons4Stab <- function(consMatrix, numVar, longitudinal) {
     if (nrow(consMatrix) == 1 & all(consMatrix == 0)) {
       return(matrix(0, 1, 2, byrow = TRUE))
 
+    } else if (nrow(consMatrix) == 1){
+
+      #in case only one constraint, to ensure returning matrix of 1x2
+      return(matrix(c(consMatrix[, 2], consMatrix[, 1]),
+                    1, 2, byrow = TRUE))
+
     } else {
+
+      #in case of constraint
       return(consMatrix[, c(2, 1)])
+
     }
   }
 }

@@ -1,12 +1,13 @@
 Package: stablespec
 Type: Package
 Title: Stable Specification Search in Structural Equation Models
-Version: 0.2.3
-Date: 2016-11-17
+Version: 0.3.0
+Date: 2017-02-17
 Authors@R: c(
     person("Ridho", "Rahmadi", , "r.rahmadi@cs.ru.nl", c("aut", "cre")),
     person("Perry", "Groot", role = c("aut", "ths")),
-    person("Tom", "Heskes", role = c("aut", "ths"))
+    person("Tom", "Heskes", role = c("aut", "ths")),
+    person("Christoph", "Stich", role = c("ctb"))
     )
 Description: An exploratory and heuristic approach for specification search
     in Structural Equation Modeling. The basic idea is to subsample the original
@@ -30,6 +31,9 @@ Imports:
     graph,
     Rgraphviz,
     methods,
-    polycor
-RoxygenNote: 5.0.1
+    polycor,
+    foreach,
+    iterators,
+    doParallel
+RoxygenNote: 6.0.1
 Suggests: testthat

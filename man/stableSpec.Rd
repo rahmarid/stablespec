@@ -7,7 +7,7 @@
 stableSpec(theData = NULL, nSubset = NULL, iteration = NULL,
   nPop = NULL, mutRate = NULL, crossRate = NULL, longitudinal = NULL,
   numTime = NULL, seed = NULL, co = NULL, consMatrix = NULL,
-  threshold = NULL, toPlot = NULL, mixture = NULL)
+  threshold = NULL, toPlot = NULL, mixture = NULL, log = NULL)
 }
 \arguments{
 \item{theData}{a data frame containing the data to which the model will be
@@ -17,7 +17,10 @@ relations that occur in the first two time slices \code{t_0} and \code{t_1}.
 The next \code{n} data points contain the relations that occur in
 time slices \code{t_1} and \code{t_2}. The \code{i-th} subset of \code{n}
 data points contain the relations in time slices \code{t_i-1} and \code{t_i}.
-One can use function \code{\link{dataReshape}} to reshape longitudinal data.}
+One can use function \code{\link{dataReshape}} to reshape longitudinal data.
+Uses the \code{foreach} package for parallel computation. You need to register
+a parallel backend before calling \code{stableSpec} if you want to parallize
+computation. For details see the \code{foreach} package.}
 
 \item{nSubset}{number of subsets to draw. In practice, it is suggested
 to have at least 25 subsets. The default is 10.}
@@ -63,6 +66,8 @@ to \code{TRUE}. This implies the use of
 \code{polychoric} and \code{polyserial} correlation in the SEM computation.
 Note that, the categorical variables should be represented as \code{factor}
 or \code{logical}.}
+
+\item{log}{an optional logfile to monitor the progress of the algorithm.}
 }
 \value{
 a list of the following elements:
@@ -143,9 +148,22 @@ longitudinal=longi, numTime=num_time, seed=the_seed,
 co=the_co, consMatrix=cons_matrix, threshold=th,
 toPlot=to_plot, mixture = mix)
 
-}
-\author{
-Ridho Rahmadi \email{r.rahmadi@cs.ru.nl}, Perry Groot, Tom Heskes
+# Using a parallel backend for computation
+# For details consult the actual backend you are using
+library(parallel)
+# Create cluster with desired number of cores
+cl <- makeCluster(detectCores())
+# Register cluster
+registerDoParallel(cl)
+# Then call stableSpec as normal 
+result.parallel <- stableSpec(theData=the_data, nSubset=numSubset,
+iteration=num_iteration,
+nPop=num_pop, mutRate=mut_rate, crossRate=cross_rate,
+longitudinal=longi, numTime=num_time, seed=the_seed,
+co=the_co, consMatrix=cons_matrix, threshold=th,
+toPlot=to_plot, mixture = mix)
+  
+
 }
 \references{
 Rahmadi, R., Groot, P., Heins, M., Knoop, H., and Heskes, T. (2016)
@@ -182,4 +200,6 @@ Chickering, D. M. (2002). Learning equivalence classes of
 Bayesian-network structures. \emph{The Journal of
 Machine Learning Research}, 2, 445-498.
 }
-
+\author{
+Ridho Rahmadi \email{r.rahmadi@cs.ru.nl}, Perry Groot, Tom Heskes
+}
