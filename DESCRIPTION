@@ -2,7 +2,7 @@ Package: stablespec
 Type: Package
 Title: Stable Specification Search in Structural Equation Models
 Version: 0.3.0
-Date: 2017-02-17
+Date: 2017-04-04
 Authors@R: c(
     person("Ridho", "Rahmadi", , "r.rahmadi@cs.ru.nl", c("aut", "cre")),
     person("Perry", "Groot", role = c("aut", "ths")),
