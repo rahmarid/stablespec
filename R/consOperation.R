@@ -47,7 +47,7 @@ cons4Stab <- function(consMatrix, numVar, longitudinal) {
     } else if (nrow(consMatrix) == 1){
 
       cons_intra <- matrix(c(consMatrix[, 2], consMatrix[, 1]),
-                           1, 2, byrow = TRUE) + numvar
+                           1, 2, byrow = TRUE) + numVar
 
     } else {
 
