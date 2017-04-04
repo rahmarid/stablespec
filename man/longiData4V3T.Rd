@@ -16,4 +16,3 @@ A data set of 400 intances, that is generated from a network consisting of
 four continuous variables and three time slices \code{t_0,...,t_2}.
 }
 \keyword{datasets}
-

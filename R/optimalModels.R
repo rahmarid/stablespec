@@ -1,3 +1,4 @@
+
 optimalModels <- function(theData, nSubset, iteration, nPop,
                           mutRate, crossRate, longitudinal,
                           numTime, seed, co, consMatrix, mixture,
@@ -41,6 +42,7 @@ optimalModels <- function(theData, nSubset, iteration, nPop,
     constraint1 <- convertCons(consMatrix, numVar)
   }
 
+  l <- NULL
   # the main loop / outer loop -----------------------------------------
   masterList <- foreach(l = 1:nSubset, .inorder = FALSE, .export = c(), .packages = c('stablespec')) %dopar% {
     #set seed

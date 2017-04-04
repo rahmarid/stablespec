@@ -13,4 +13,3 @@ A data set of 500 intances, generated from a network consisting
 of six continuous variables.
 }
 \keyword{datasets}
-

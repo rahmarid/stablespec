@@ -66,4 +66,3 @@ longitudinal=longi)
 \author{
 Ridho Rahmadi \email{r.rahmadi@cs.ru.nl}
 }
-

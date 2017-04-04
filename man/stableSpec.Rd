@@ -148,21 +148,24 @@ longitudinal=longi, numTime=num_time, seed=the_seed,
 co=the_co, consMatrix=cons_matrix, threshold=th,
 toPlot=to_plot, mixture = mix)
 
-# Using a parallel backend for computation
-# For details consult the actual backend you are using
-library(parallel)
-# Create cluster with desired number of cores
-cl <- makeCluster(detectCores())
-# Register cluster
-registerDoParallel(cl)
-# Then call stableSpec as normal 
-result.parallel <- stableSpec(theData=the_data, nSubset=numSubset,
-iteration=num_iteration,
-nPop=num_pop, mutRate=mut_rate, crossRate=cross_rate,
-longitudinal=longi, numTime=num_time, seed=the_seed,
-co=the_co, consMatrix=cons_matrix, threshold=th,
-toPlot=to_plot, mixture = mix)
-  
+##########################################################
+## Parallel computation is possible by
+## registering parallel backend, e.g., package doParallel.
+## For example, add the following lines on top of
+## the example above.
+#
+# library(parallel)
+# library(doParallel)
+# cl <- makeCluster(detectCores())
+# registerDoParallel(cl)
+#
+## Then call stableSpec() as normal.
+##
+## Note that makeCluster() and detectCores() are
+## from package parallel, and registerDoParallel()
+## is from package doParallel. For more detail
+## check the aforementioned packages' documentations.
+###########################################################
 
 }
 \references{
@@ -201,5 +204,6 @@ Bayesian-network structures. \emph{The Journal of
 Machine Learning Research}, 2, 445-498.
 }
 \author{
-Ridho Rahmadi \email{r.rahmadi@cs.ru.nl}, Perry Groot, Tom Heskes
+Ridho Rahmadi \email{r.rahmadi@cs.ru.nl}, Perry Groot, Tom Heskes.
+Christoph Stich is a contributor for parallel support.
 }

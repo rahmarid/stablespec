@@ -34,4 +34,3 @@ reshaped_the_data <- dataReshape(the_data, num_time)
 \author{
 Ridho Rahmadi \email{r.rahmadi@cs.ru.nl}
 }
-

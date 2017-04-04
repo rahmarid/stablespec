@@ -57,6 +57,23 @@ nPop=num_pop, mutRate=mut_rate, crossRate=cross_rate,
 longitudinal=longi, numTime=num_time, seed=the_seed,
 co=the_co, consMatrix=cons_matrix, threshold=th,
 toPlot=to_plot, mixture = mix)
+
+## Parallel computation is possible by
+## registering parallel backend, e.g., package doParallel.
+## For example, add the following lines on top of
+## the example above.
+#
+#  library(parallel)
+#  library(doParallel)
+#  cl <- makeCluster(detectCores())
+#  registerDoParallel(cl)
+#
+## Then call stableSpec() as normal.
+##
+## Note that makeCluster() and detectCores() are
+## from package parallel, and registerDoParallel()
+## is from package doParallel. For more detail
+## check the aforementioned packages' documentations.
 ```
 
 ## More about S3C/L

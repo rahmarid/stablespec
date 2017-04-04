@@ -55,4 +55,3 @@ repaired_model_b}
 \author{
 Ridho Rahmadi \email{r.rahmadi@cs.ru.nl}
 }
-

@@ -58,4 +58,3 @@ co="covariance", mixture = FALSE)
 \author{
 Ridho Rahmadi \email{r.rahmadi@cs.ru.nl}
 }
-
