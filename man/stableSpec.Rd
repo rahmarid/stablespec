@@ -122,9 +122,14 @@ parsimonious which are then used to infer a causal model.
 }
 \examples{
 # Cross-sectional data example,
-# with an artificial data set with six continuous variables.
+# with an artificial data set of six continuous variables.
 # Detail about the data set can be found in the documentation.
 # As an example, we only run one subset.
+# Note that stableSpec() uses foreach to support
+# parallel computation, which could issue a warning
+# when running sequentially as the following example. However
+# the warning can be just ignored.
+
 the_data <- crossdata6V
 numSubset <- 1
 num_iteration <- 5
@@ -205,5 +210,5 @@ Machine Learning Research}, 2, 445-498.
 }
 \author{
 Ridho Rahmadi \email{r.rahmadi@cs.ru.nl}, Perry Groot, Tom Heskes.
-Christoph Stich is a contributor for parallel support.
+Christoph Stich is the contributor for parallel support.
 }
