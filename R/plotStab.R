@@ -196,13 +196,13 @@ plotStability <- function(listOfFronts = NULL, threshold = NULL,
     axis(1, at=(numComp + 1):1, labels=0:numComp)
 
     #causal stability, color is red
-    lines(mat4PlotCausal[, j], title(theTitle[j]),
+    lines(mat4PlotCausal[, j], title(theTitle[j], font.main = 1),
           xlim=rev(range(1:length(stableCausal))), col=2, lwd=3, lty=3)
     #causal stability length 1, color is green
-    lines(mat4PlotCausal_l1[, j],title(theTitle[j]),
+    lines(mat4PlotCausal_l1[, j],
           xlim=rev(range(1:length(stableCausal_l1))), col=3, lwd=3, lty=3)
     #edge stability, color is blue
-    lines(mat4PlotEdge[, j],title(theTitle[j]),
+    lines(mat4PlotEdge[, j],
           xlim=rev(range(1:length(stableEdge))), col=4, lwd=3, lty=3)
     #bic threshold
     lines(rep(minBicAt, 7), seq(-0.1, 1.1, 0.2))
