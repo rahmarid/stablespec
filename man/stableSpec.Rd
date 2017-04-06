@@ -25,7 +25,8 @@ computation. For details see the \code{foreach} package.}
 \item{nSubset}{number of subsets to draw. In practice, it is suggested
 to have at least 25 subsets. The default is 10.}
 
-\item{iteration}{number of iterations/generations for NSGA-II.}
+\item{iteration}{number of iterations/generations for NSGA-II. The default
+is 20.}
 
 \item{nPop}{population size (number of models) in a generation.
 The default is 50.}

@@ -13,7 +13,8 @@
 #' computation. For details see the \code{foreach} package.
 #' @param nSubset number of subsets to draw. In practice, it is suggested
 #' to have at least 25 subsets. The default is 10.
-#' @param iteration number of iterations/generations for NSGA-II.
+#' @param iteration number of iterations/generations for NSGA-II. The default
+#' is 20.
 #' @param nPop population size (number of models) in a generation.
 #' The default is 50.
 #' @param mutRate mutation rate. The default is 0.075.
